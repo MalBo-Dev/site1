@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB; // <--- این خط را حتما اضافه کنید
 
 class CreateAclTables extends Migration
 {
@@ -31,8 +32,6 @@ class CreateAclTables extends Migration
         Schema::create('role_user', function (Blueprint $table) {
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('role_id')->constrained('roles')->onDelete('cascade');
-            
-            // کلید اصلی ترکیبی
             $table->primary(['user_id', 'role_id']);
         });
 
@@ -40,10 +39,32 @@ class CreateAclTables extends Migration
         Schema::create('permission_role', function (Blueprint $table) {
             $table->foreignId('permission_id')->constrained('permissions')->onDelete('cascade');
             $table->foreignId('role_id')->constrained('roles')->onDelete('cascade');
-            
-            // کلید اصلی ترکیبی
             $table->primary(['permission_id', 'role_id']);
         });
+
+        // -------------------------------------------------------
+        // درج داده‌های اولیه (Roles & Permissions) داخل همین مایگریشن
+        // -------------------------------------------------------
+
+        // الف) ایجاد نقش Admin
+        DB::table('roles')->insert([
+            'id' => 1,
+            'name' => 'admin',
+            'label' => 'مدیر سیستم'
+        ]);
+
+        // ب) ایجاد دسترسی manage_images
+        DB::table('permissions')->insert([
+            'id' => 1,
+            'name' => 'manage_images',
+            'label' => 'مدیر تصاویر مرجوعی'
+        ]);
+
+        // ج) اتصال دسترسی به نقش (نقش ۱ دارای دسترسی ۱ است)
+        DB::table('permission_role')->insert([
+            'role_id' => 1,
+            'permission_id' => 1
+        ]);
     }
 
     /**
