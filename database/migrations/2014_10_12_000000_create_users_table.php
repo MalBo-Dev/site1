@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBookingsTable extends Migration
+class CreateUsersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,23 +13,17 @@ class CreateBookingsTable extends Migration
      */
     public function up()
     {
-        Schema::create('bookings', function (Blueprint $table) {
+        Schema::create('users', function (Blueprint $table) {
             $table->id();
-            // ارتباط با جدول users و trains
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('train_id')->constrained('trains')->onDelete('cascade');
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
             
-            $table->string('cargo_description')->comment('شرح کالا');
-            $table->decimal('weight', 10, 2)->comment('وزن بار');
-            $table->integer('wagon_count')->comment('تعداد واگن رزرو شده');
-            $table->decimal('cost', 15, 0)->comment('هزینه کل');
+            // فیلد کیف پول
+            $table->decimal('wallet_balance', 15, 0)->default(0)->comment('موجودی کیف پول به ریال');
             
-            // وضعیت رزرو
-            $table->enum('status', ['tentative', 'confirmed'])
-                  ->default('tentative')
-                  ->comment('وضعیت: tentative=رزرو اولیه, confirmed=قطعی');
-            
-            $table->boolean('is_paid')->default(false)->comment('وضعیت پرداخت');
+            $table->rememberToken();
             $table->timestamps();
         });
     }
@@ -41,6 +35,6 @@ class CreateBookingsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bookings');
+        Schema::dropIfExists('users');
     }
 }
